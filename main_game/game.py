@@ -4,6 +4,12 @@ import cvzone
 from cvzone.HandTrackingModule import HandDetector
 import time
 
+import pygame
+
+pygame.mixer.init()
+pygame.mixer.music.load("files/battle.mp3")
+pygame.mixer.music.play(-1)
+
 cap = cv2.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
@@ -16,7 +22,7 @@ startGame = False
 scores = [0, 0]  # [AI, Player]
  
 while True:
-    imgBG = cv2.imread("Resources/BG.png")
+    imgBG = cv2.imread("files/BG.png")
     success, img = cap.read()
  
     imgScaled = cv2.resize(img, (0, 0), None, 0.875, 0.875)
@@ -50,7 +56,7 @@ while True:
                         print("Scissors")
  
                     randomNumber = random.randint(1, 3)
-                    imgAI = cv2.imread(f'Resources/{randomNumber}.png', cv2.IMREAD_UNCHANGED)
+                    imgAI = cv2.imread(f'files/{randomNumber}.png', cv2.IMREAD_UNCHANGED)
                     imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
  
                     # Player Wins
@@ -82,3 +88,11 @@ while True:
         startGame = True
         initialTime = time.time()
         stateResult = False
+    elif key == ord('q'):
+        startGame = False
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+pygame.mixer.music.stop()
+pygame.mixer.quit()
