@@ -1,4 +1,5 @@
-import random
+import back_end as be
+
 import cv2
 import cvzone
 from cvzone.HandTrackingModule import HandDetector
@@ -9,6 +10,7 @@ import pygame
 
 TIME_TO_START = 3
 
+back_end = be.BackEnd
 
 pygame.mixer.init()
 pygame.mixer.music.load("files/battle.mp3")
@@ -18,7 +20,7 @@ cap = cv2.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
 
-detector = HandDetector(maxHands=1,detectionCon=0.3, minTrackCon=0.5) # Todo:  check for other values too
+detector = HandDetector(maxHands=1, detectionCon=0.3, minTrackCon=0.5)  # Todo:  check for other values too
 
 timer = 0
 stateResult = False
@@ -32,65 +34,40 @@ while True:
     imgScaled = cv2.resize(img, (0, 0), None, 0.875, 0.875)
     imgScaled = imgScaled[:, 80:480]
 
-    # Find Hands
-    hands, img = detector.findHands(imgScaled)  # with draw
+    hands, img = detector.findHands(imgScaled)
 
-    if hands:  # TODO: for testing Delete this
-        hand = hands[0]
-        fingers = detector.fingersUp(hand)
-        if fingers == [0, 0, 0, 0, 0]:
-            print("Rock")
-        if fingers == [1, 1, 1, 1, 1]:
-            print("Paper")
-        if fingers == [0, 1, 1, 0, 0]:
-            print("Scissors")
-
+    imgAI = cv2.imread(f'files/{0}.png', cv2.IMREAD_UNCHANGED)
     if startGame:
 
         if not stateResult:
             timer = time.time() - initialTime
             cv2.putText(imgBG, str(int(timer)), (605, 435), cv2.FONT_HERSHEY_PLAIN, 6, (255, 0, 255), 4)
- 
+
             if timer > TIME_TO_START:
                 stateResult = True
                 timer = 0
 
                 if hands:
-                    playerMove = None
+                    player_move = None
                     hand = hands[0]
                     fingers = detector.fingersUp(hand)
                     if fingers == [0, 0, 0, 0, 0]:
-                        playerMove = 1
+                        player_move = 0
                         print("Rock")
                     if fingers == [1, 1, 1, 1, 1]:
-                        playerMove = 2
+                        player_move = 1
                         print("Paper")
                     if fingers == [0, 1, 1, 0, 0]:
-                        playerMove = 3
+                        player_move = 2
                         print("Scissors")
 
-                    randomNumber = random.randint(1, 3)
-                    imgAI = cv2.imread(f'files/{randomNumber}.png', cv2.IMREAD_UNCHANGED)
+                    # Used for finding showing computer decisions
+                    computer_move, model_choice = back_end.choose_computer_move()
+                    imgAI = cv2.imread(f'files/{computer_move+1}.png', cv2.IMREAD_UNCHANGED)
                     imgBG = cvzone.overlayPNG(imgBG, imgAI, (149, 310))
- 
-                    # Player Wins
-                    if (playerMove == 1 and randomNumber == 3) or \
-                            (playerMove == 2 and randomNumber == 1) or \
-                            (playerMove == 3 and randomNumber == 2):
-                        scores[1] += 1
 
-                    # AI Wins
-                    if (playerMove == 3 and randomNumber == 1) or \
-                            (playerMove == 1 and randomNumber == 2) or \
-                            (playerMove == 2 and randomNumber == 3):
-                        scores[0] += 1
-
-                    # draw
-                    if playerMove == randomNumber:
-                        pass
-
-                    else:
-                        pass
+                    back_end.update_value(player_move, computer_move, model_choice=model_choice)  # Used for saving data
+                    scores[0], scores[1] = back_end.get_scores()
 
     imgBG[234:654, 795:1195] = imgScaled
 

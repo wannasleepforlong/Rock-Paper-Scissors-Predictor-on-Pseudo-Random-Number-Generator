@@ -1,38 +1,54 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import sklearn
+import random
 
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.neural_network import MLPRegressor
 import numpy as np
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-reg1 = DecisionTreeRegressor()
-reg2 = RandomForestRegressor()
-reg3 = GradientBoostingRegressor()
-reg4 = MLPRegressor()
+class Model:
+    def __init__(self, model_name):
+        self.power_score = 2
+        self.model_name = model_name
 
-reg1.fit(X_train, y_train)
-reg2.fit(X_train, y_train)
-reg3.fit(X_train, y_train)
-reg4.fit(X_train, y_train)
+    def get_name(self):
+        return self.model_name
 
-predictions = []
-models = [reg1, reg2, reg3, reg4]  
+    def score(self, data: dict):  # This code is correctly giving the required score
+        winning_result = data.get(self.model_name)
+        winning_score_list = [((i + 1) ** self.power_score * j) for i, j in enumerate(winning_result)]
+        winning_score = sum(winning_score_list)
+        normalised_winning_score = winning_score / sum(
+            [((i + 1) ** self.power_score) for i, j in enumerate(winning_result)])
+        return normalised_winning_score
 
-for model in models:
-    predictions.append(model.predict_proba(X_test))
+    def decision(self):
+        pass
 
-predictions = np.array(predictions)
 
-best_model_indices = np.argmax(predictions, axis=0)
+class MarkovChain(Model):
+    def __init__(self, model_name, num, enemy_counting=False):
+        super().__init__(model_name)
+        self.num = num
+        self.state = None
+        self._model_creation()
+        self.past_order = "0" * num
 
-ensemble_predictions = [model_index[input_index] for input_index, model_index in enumerate(best_model_indices)]
+    def _model_creation(self):
+        self.state = np.zeros((3 ** self.num, 3))
 
-accuracy = accuracy_score(y_test, ensemble_predictions)
-print("Ensemble Accuracy:", accuracy)
+    def add_data(self):
+        print(self.state)
+
+    def decision(self):
+        super().decision()
+        pass
+
+    def score(self, data: dict):  # Todo: Temp placeholder later just delete
+        return 0
+
+
+class RandomModel(Model):
+    def decision(self):
+        super().decision()
+        return random.randint(0, 2)
+
+    def score(self, data: dict):  # Todo: Temp placeholder for testing later just delete
+        return 1000
