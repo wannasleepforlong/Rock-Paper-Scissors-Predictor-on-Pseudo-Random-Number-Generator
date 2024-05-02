@@ -25,7 +25,7 @@ class BackEnd:
         self.cur_round = 0
         self.computer_score = 0
         self.player_score = 0
-        self.models = [mod.RandomModel("random_model"), mod.MarkovChain("m2_model", 2, discount_factor=0.95), ]
+        self.models = [mod.RandomModel("random_model", max_counter=-1), mod.MarkovChain("m2_model", 2, discount_factor=0.95), ]
         self.url = f"{unique_username}{unique_token}.csv"  # TODO: Create your own url pattern later
         if start_previous_session:
             pass
@@ -82,7 +82,7 @@ class BackEnd:
         score_array = np.array([model.score(data) for model in self.models])
         self.model_choice = np.argmax(score_array)
         print(f"Model_name: {self.models[self.model_choice].model_name}")
-        [model.decision() for model in self.models] # New Decisions from all models
+        [model.decision() for model in self.models]  # New Decisions from all models
         return self.models[self.model_choice].decision(new=False)
 
 

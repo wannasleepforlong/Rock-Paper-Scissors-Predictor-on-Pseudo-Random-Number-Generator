@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+import pandas as pd
 
 IDEAL_RESPONSE = {'0': '1', '1': '2', '2': '0'}
 
@@ -13,7 +14,7 @@ class Model:
     def get_name(self):
         return self.model_name
 
-    def score(self, data: dict):  # This code is correctly giving the required score
+    def score(self, data: pd.DataFrame):  # This code is correctly giving the required score
         winning_result = data.get(self.model_name)
         winning_score_list = [((i + 1) ** self.power_score * -j) for i, j in enumerate(winning_result)]
         winning_score = sum(winning_score_list)
@@ -45,7 +46,7 @@ class MarkovChain(Model):
     def add_data(self, player_move, computer_move):
         self.state = self.state * self.discount_factor
         pattern_index = sum([int(val) * (3 ** index) for index, val in enumerate(self.player_history[::-1])])
-        self.state[pattern_index,player_move] += 1
+        self.state[pattern_index, player_move] += 1
         if self.enemy_counting:
             self.player_history = self.player_history[1:] + str(player_move)
         else:
@@ -63,12 +64,25 @@ class MarkovChain(Model):
 
 
 class RandomModel(Model):
-    def __init__(self, model_name):
+    def __init__(self, model_name, max_counter):
         super().__init__(model_name)
         self.result = None
+        self.max_counter = max_counter
+        self.counter = 0
 
     def decision(self, new=True):
         super().decision()
         if new:
             self.result = random.randint(0, 2)
         return self.result
+
+    def increase_counter(self):
+        self.counter += 1
+
+    def score(self, data: pd.DataFrame):
+        self.increase_counter()
+        if self.counter == self.max_counter:
+            self.counter = 0
+            return 100000000
+        else:
+            return super().score(data)
