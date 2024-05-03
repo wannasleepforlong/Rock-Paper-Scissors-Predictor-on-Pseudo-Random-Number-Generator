@@ -1,38 +1,88 @@
+import random
+
 import numpy as np
-import matplotlib.pyplot as plt
-import sklearn
+import pandas as pd
 
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.neural_network import MLPRegressor
-import numpy as np
+IDEAL_RESPONSE = {'0': '1', '1': '2', '2': '0'}
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-reg1 = DecisionTreeRegressor()
-reg2 = RandomForestRegressor()
-reg3 = GradientBoostingRegressor()
-reg4 = MLPRegressor()
+class Model:
+    def __init__(self, model_name):
+        self.power_score = 2
+        self.model_name = model_name
 
-reg1.fit(X_train, y_train)
-reg2.fit(X_train, y_train)
-reg3.fit(X_train, y_train)
-reg4.fit(X_train, y_train)
+    def get_name(self):
+        return self.model_name
 
-predictions = []
-models = [reg1, reg2, reg3, reg4]  
+    def score(self, data: pd.DataFrame):  # This code is correctly giving the required score
+        winning_result = data.get(self.model_name)
+        winning_score_list = [((i + 1) ** self.power_score * -j) for i, j in enumerate(winning_result)]
+        winning_score = sum(winning_score_list)
+        normalised_winning_score = winning_score / (sum(
+            [((i + 1) ** self.power_score) for i, j in enumerate(winning_result)]) + 0.000001)
+        return normalised_winning_score
 
-for model in models:
-    predictions.append(model.predict_proba(X_test))
+    def decision(self, new=True):
+        pass
 
-predictions = np.array(predictions)
+    def add_data(self, player_move, computer_move):
+        pass
 
-best_model_indices = np.argmax(predictions, axis=0)
 
-ensemble_predictions = [model_index[input_index] for input_index, model_index in enumerate(best_model_indices)]
+class MarkovChain(Model):
+    def __init__(self, model_name, num, enemy_counting=False, discount_factor=1):
+        super().__init__(model_name)
+        self.num = num
+        self.state = None
+        self._model_creation()
+        self.enemy_counting = enemy_counting
+        self.discount_factor = discount_factor
+        self.player_history = num * "0"
+        self.result = None
 
-accuracy = accuracy_score(y_test, ensemble_predictions)
-print("Ensemble Accuracy:", accuracy)
+    def _model_creation(self):
+        self.state = np.zeros((3 ** self.num, 3))
+
+    def add_data(self, player_move, computer_move):
+        self.state = self.state * self.discount_factor
+        pattern_index = sum([int(val) * (3 ** index) for index, val in enumerate(self.player_history[::-1])])
+        self.state[pattern_index, player_move] += 1
+        if self.enemy_counting:
+            self.player_history = self.player_history[1:] + str(player_move)
+        else:
+            self.player_history = self.player_history[2:] + str(player_move) + str(computer_move)
+            # This will allow the computer to also calculate patters based on its moves
+        print(self.state)
+
+    def decision(self, new=True):
+        super().decision(new)
+        if new:
+            pattern_index = sum([int(val) * (3 ** index) for index, val in enumerate(self.player_history[::-1])])
+            prediction = np.argmax(self.state[pattern_index])
+            self.result = int(IDEAL_RESPONSE[str(prediction)])
+        return self.result
+
+
+class RandomModel(Model):
+    def __init__(self, model_name, max_counter):
+        super().__init__(model_name)
+        self.result = None
+        self.max_counter = max_counter
+        self.counter = 0
+
+    def decision(self, new=True):
+        super().decision()
+        if new:
+            self.result = random.randint(0, 2)
+        return self.result
+
+    def increase_counter(self):
+        self.counter += 1
+
+    def score(self, data: pd.DataFrame):
+        self.increase_counter()
+        if self.counter == self.max_counter:
+            self.counter = 0
+            return 100000000
+        else:
+            return super().score(data)

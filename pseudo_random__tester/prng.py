@@ -1,7 +1,7 @@
-# Random Number by Mersenne Twister
 
 import random
 
+# Random Number by Mersenne Twister
 class MT:
     def random(self):
         random_number = random.randint(0, 102)
@@ -9,7 +9,6 @@ class MT:
 
 
 # Random Number by Linear Congruential Generator
-
 class LCG:
     def __init__(self, seed=123, a=1664525, c=1013904223, m=2**32):
         self.seed = seed
