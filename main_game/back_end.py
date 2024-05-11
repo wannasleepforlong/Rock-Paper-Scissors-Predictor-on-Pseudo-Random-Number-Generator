@@ -17,6 +17,15 @@ def decision(computer_move, player_move):
         return 0
 
 
+def _scoring(round_decision):
+    if round_decision == -1:  # Computer Win
+        return -10
+    elif round_decision == 0:  # Computer Draw
+        return -9
+    else:  # Computer Loss
+        return 10
+
+
 class BackEnd:
     def __init__(self, unique_username: str, unique_token: str, start_previous_session: bool, wins_required: int):
         self.wins_required = wins_required
@@ -25,13 +34,30 @@ class BackEnd:
         self.cur_round = 0
         self.computer_score = 0
         self.player_score = 0
-        self.models = [mod.RandomModel("random_model", max_counter=-1), mod.MarkovChain("m2_model", 2, discount_factor=0.95), ]
+        self.models = [
+            # mod.RandomModel("random_model", max_counter=20),
+            mod.MarkovChain("m2_model", 2, discount_factor=1),
+            mod.MarkovChain("m2.95_model", 2, discount_factor=0.95),
+            mod.MarkovChain("m2.90_model", 2, discount_factor=0.90),
+            mod.MarkovChain("m3_model", 3, discount_factor=1),
+            mod.MarkovChain("m3.995_model", 3, discount_factor=0.995),
+            mod.MarkovChain("m3.985_model", 3, discount_factor=0.985),
+            mod.MarkovChain("m3.975_model", 3, discount_factor=0.975),
+            mod.MarkovChain("m4_model", 4, discount_factor=1),
+            mod.MarkovChain("m4.9995_model", 4, discount_factor=0.9995),
+            mod.MarkovChain("m4.9985_model", 4, discount_factor=0.9985),
+            mod.MarkovChain("m4.9985_model", 4, discount_factor=0.9975),
+            mod.MarkovChain("m4_model", 5, discount_factor=1),
+            mod.MarkovChain("m3.99.T_model", num=3, enemy_counting=True, discount_factor=0.99),
+            mod.MarkovChain("m3.98.T_model", num=3, enemy_counting=True, discount_factor=0.98),
+            mod.MarkovChain("m3.97.T_model", num=3, enemy_counting=True, discount_factor=0.97),
+        ]
         self.url = f"{unique_username}{unique_token}.csv"  # TODO: Create your own url pattern later
         if start_previous_session:
             pass
             # TODO: get_previous_game_info
         else:
-            header_string = "game_id, round, pointC, pointP, moveC, moveP, winner, model_choice, timestamp"
+            header_string = "game_id,round,pointC,pointP,moveC,moveP,winner,model_choice,timestamp"
             for model in self.models:
                 header_string += "," + model.model_name
             header_string += "\n"
@@ -56,7 +82,7 @@ class BackEnd:
                         datetime.datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")]
         round_result += [decision(model.decision(new=False), player_move) for model in self.models]
         round_result = map(str, round_result)
-        round_result_str = ', '.join(round_result) + '\n'
+        round_result_str = ','.join(round_result) + '\n'
         with open(self.url, mode='a') as file:
             file.write(round_result_str)
         self.cur_round += 1
@@ -81,7 +107,7 @@ class BackEnd:
         data = self._get_csv_data()
         score_array = np.array([model.score(data) for model in self.models])
         self.model_choice = np.argmax(score_array)
-        print(f"Model_name: {self.models[self.model_choice].model_name}")
+        # print(f"Model_name: {self.models[self.model_choice].model_name}")
         [model.decision() for model in self.models]  # New Decisions from all models
         return self.models[self.model_choice].decision(new=False)
 

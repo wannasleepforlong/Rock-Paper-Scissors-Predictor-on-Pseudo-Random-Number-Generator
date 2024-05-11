@@ -52,7 +52,7 @@ class MarkovChain(Model):
         else:
             self.player_history = self.player_history[2:] + str(player_move) + str(computer_move)
             # This will allow the computer to also calculate patters based on its moves
-        print(self.state)
+        # print(self.state)
 
     def decision(self, new=True):
         super().decision(new)
