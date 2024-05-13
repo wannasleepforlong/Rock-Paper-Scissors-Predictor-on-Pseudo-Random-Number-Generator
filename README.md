@@ -12,9 +12,9 @@ This project implements a Rock Paper Scissors (RPS) predictor bot using Markov c
 
 ## Usage
 1. Clone the repository to your local machine.
-2. Install the required dependencies using `pip install -r requirements.txt`.
-3. Run the `game.py` script to start the RPS predictor bot.
-4. Play RPS against the bot and observe its predictions based on your moves.
+2. Run the `game.py` script to start the RPS predictor bot.
+3. Play RPS against the bot and observe its predictions based on your moves.
+4. Enjoy mate!
 
 ## How it Works
 - The bot maintains a state matrix representing the transition probabilities between different move patterns.
