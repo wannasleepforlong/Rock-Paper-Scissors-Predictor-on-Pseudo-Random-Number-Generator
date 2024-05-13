@@ -22,5 +22,6 @@ This project implements a Rock Paper Scissors (RPS) predictor bot using Markov c
 - The bot uses the Markov chain model to predict the opponent's next move based on the current pattern of player moves.
 - Predictions are made using the softmax function to convert raw output scores into probabilities.
 
-##Example
+## Example
+
 ![image](https://github.com/wannasleepforlong/Rock-Paper-Scissors-Predictor-on-Pseudo-Random-Number-Generator/assets/109717763/acfd767d-7a7f-41b1-8a85-e07db847ff41)
