@@ -27,4 +27,5 @@ This project implements a Rock Paper Scissors (RPS) predictor bot using Markov c
 ![image](https://github.com/wannasleepforlong/Rock-Paper-Scissors-Predictor-on-Pseudo-Random-Number-Generator/assets/109717763/acfd767d-7a7f-41b1-8a85-e07db847ff41)
 
 **Tip**: Try playing patterns like 'Rock, Scissors, Rock, Scissors, Rock, Scissors...' and see how the AI responds!
-<i>Special thanks to Murtaza Paul for his awesome video tutorial for the frontend!</i>
+
+<i>Special thanks to <b>Murtaza Paul</b> for his awesome video tutorial for the frontend!</i>
