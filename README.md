@@ -28,4 +28,4 @@ This project implements a Rock Paper Scissors (RPS) predictor bot using Markov c
 
 **Tip**: Try playing patterns like 'Rock, Scissors, Rock, Scissors, Rock, Scissors...' and see how the AI responds!
 
-<i>Special thanks to <b>Murtaza Paul</b> for his awesome video tutorial for the frontend!</i>
+<i>Special thanks to <b>[Murtaza](https://www.youtube.com/@murtazasworkshop)</b> for his awesome video tutorial for the frontend!</i>
